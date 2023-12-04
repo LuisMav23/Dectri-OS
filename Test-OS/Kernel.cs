@@ -1,11 +1,7 @@
 ﻿using Cosmos.System.FileSystem.Listing;
 using System;
 using System.Collections.Generic;
-using Cosmos.System_Plugs.System;
 using Sys = Cosmos.System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Xml.Linq;
 
 namespace Test_OS
 {
@@ -13,7 +9,7 @@ namespace Test_OS
     {
         DirectoryEntry CurrentDirectory;
         Sys.FileSystem.CosmosVFS VFS;
-        String username = "";
+        List<String> User = null;
         bool isLoggedon = false;
 
         protected override void BeforeRun()
@@ -38,9 +34,9 @@ namespace Test_OS
                 var Name = Console.ReadLine();
                 Console.Write("Password: ");
                 var Password = Console.ReadLine();
-                if (Security.User.userAuth(Name, Password))
+                User = Security.User.userAuth(Name, Password);
+                if (User != null)
                 {
-                    username = Name;
                     isLoggedon = true;
                     Console.Clear();
                 }
@@ -51,7 +47,7 @@ namespace Test_OS
                 }
                 
             }
-            Console.Write("<<" + username+ ">"+CurrentDirectory.mFullPath);
+            Console.Write("< (" + User[0] + ") "+CurrentDirectory.mFullPath);
             Console.Write(">$ ");
             String input = Console.ReadLine();
             var inputStream = input.Split(" ");
@@ -113,16 +109,16 @@ namespace Security
             new List<String> {"admin", "admin", "5"},
             new List<String> {"user", "12345", "3"}
         };
-        public static bool userAuth(string name, string pass)
+        public static List<String> userAuth(string name, string pass)
         {
             foreach (var user in users)
             {
                 if (user[0] == name && user[1] == pass)
                 {
-                    return true;
+                    return user;
                 }
             }
-            return false;
+            return null;
 
         }
     }
@@ -233,6 +229,7 @@ namespace TestOS_CLI
             Console.WriteLine("============================================================================");
             Console.WriteLine("Press any key to go back...");
             Console.ReadKey();
+            Console.Clear();
             return;
 
         }
