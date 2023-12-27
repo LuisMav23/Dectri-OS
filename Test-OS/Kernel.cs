@@ -39,6 +39,7 @@ namespace Test_OS
                 {
                     isLoggedon = true;
                     Console.Clear();
+                    Console.WriteLine("Type 'help' to view commands.");
                 }
                 else
                 {
@@ -47,27 +48,53 @@ namespace Test_OS
                 }
                 
             }
-            Console.Write("< (" + User[0] + ") "+CurrentDirectory.mFullPath);
+            
+            Console.Write("<(" + User[0] + ")"+CurrentDirectory.mFullPath);
             Console.Write(">$ ");
             String input = Console.ReadLine();
             var inputStream = input.Split(" ");
             switch (inputStream[0])
             {
                 case "echo":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     TestOS_CLI.OS.echo(inputStream);
                     break;
                 case "dir": TestOS_CLI.FileSystem.getDirList(CurrentDirectory, VFS);
                     break;
                 case "mkdir":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     TestOS_CLI.FileSystem.makeDir(CurrentDirectory, inputStream[1], VFS);
                     break;
                 case "rmdir":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     TestOS_CLI.FileSystem.deleteDir(CurrentDirectory, inputStream[1], VFS);
                     break;
                 case "cd":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     CurrentDirectory = TestOS_CLI.FileSystem.changeDir(CurrentDirectory, inputStream[1], VFS);
                     break;
                 case "touch":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     TestOS_CLI.FileSystem.makeFile(CurrentDirectory, inputStream[1], VFS);
                     break;
                 case "shutdown":
@@ -79,10 +106,20 @@ namespace Test_OS
                 case "cls":
                     Console.Clear();
                     break;
-                case "color":
+                case "foreground":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     TestOS_CLI.OS.ChangeForegroundColor(inputStream[1]);
                     break;
                 case "background":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
                     TestOS_CLI.OS.ChangeBackgroundColor(inputStream[1]);
                     break;
                 case "sysinfo":
@@ -90,6 +127,9 @@ namespace Test_OS
                     break;
                 case "datetime":
                     TestOS_CLI.OS.displayDateTime();
+                    break;
+                case "help":
+                    TestOS_CLI.OS.displayHelp();
                     break;
                 default:
                     Console.WriteLine($"Cannot recognize {inputStream[0]} as a system command.");
@@ -266,6 +306,20 @@ namespace TestOS_CLI
             return;
         }
 
+        public static void DisplayHelp()
+        {
+            Console.WriteLine("============================================================================");
+            Console.WriteLine("Command List: ");
+            Console.WriteLine("-\t cls: to clear console screen.");
+            Console.WriteLine("-\t shutdown: to shutdown/power off device.");
+            Console.WriteLine("-\t reboot: to reboot/restart device.");
+            Console.WriteLine("-\t cls: to clear console screen");
+            Console.WriteLine("");
+
+
+            Console.WriteLine("============================================================================");
+        }
+
         public static void ChangeForegroundColor(String color)
         {
             switch (color)
@@ -319,7 +373,7 @@ namespace TestOS_CLI
                     Console.ForegroundColor = ConsoleColor.White;
                     break;
                 case "help":
-                    Console.WriteLine("To change the console text color, use this command 'color <insert color>'");
+                    Console.WriteLine("To change the console text color, use this command 'foreground <insert color>'");
                     Console.WriteLine("Available Colors: ");
                     Console.WriteLine("-\tGREEN: green");
                     Console.WriteLine("-\tRED: red");
@@ -338,7 +392,7 @@ namespace TestOS_CLI
                     Console.WriteLine("-\tWHITE: white");
                     break;
                 default:
-                    Console.WriteLine($"{color} is not recognized by the system. For more info type \'color help\'");
+                    Console.WriteLine($"{color} is not recognized by the system. For more info type \'foreground help\'");
                     break;
             }
         }
@@ -396,7 +450,7 @@ namespace TestOS_CLI
                     Console.ResetColor();
                     break;
                 case "help":
-                    Console.WriteLine("To change the console background color, use this command 'bgcolor <insert color>'");
+                    Console.WriteLine("To change the console background color, use this command 'background <insert color>'");
                     Console.WriteLine("Available Colors: ");
                     Console.WriteLine("-\tGREEN: green");
                     Console.WriteLine("-\tRED: red");
@@ -415,7 +469,7 @@ namespace TestOS_CLI
                     Console.WriteLine("-\tWHITE: white");
                     break;
                 default:
-                    Console.WriteLine($"{color} is not recognized by the system. For more info type \'bgcolor help\'");
+                    Console.WriteLine($"{color} is not recognized by the system. For more info type \'background help\'");
                     break;
             }
             Console.Clear();
@@ -427,6 +481,26 @@ namespace TestOS_CLI
             Console.WriteLine(DateTime.Now.ToLongTimeString());
         }
 
+        public static void displayHelp()
+        {
+            Console.WriteLine("Console Commands: ");
+            Console.WriteLine("\tKernel:");
+            Console.WriteLine("\t- echo: Print a message.");
+            Console.WriteLine("\t- shutdown: Shutdown the operating system.");
+            Console.WriteLine("\t- reboot: Reboot the operating system.");
+            Console.WriteLine("\t- sysinfo: Display the system info.");
+            Console.WriteLine("\t- datetime: Reboot the operating system.");
+            Console.WriteLine("\t- cls: Clear the console screen.");
+            Console.WriteLine("\tFile System:");
+            Console.WriteLine("\t- dir: Check the contents of the current directory.");
+            Console.WriteLine("\t- cd: Change the current directory.");
+            Console.WriteLine("\t- mkdir: Create a new directory inside the current directory.");
+            Console.WriteLine("\t- rmdir: Delete a new directory inside the current directory.");
+            Console.WriteLine("\t- touch: Create a new file inside the current directory.");
+            Console.WriteLine("\tCustomize:");
+            Console.WriteLine("\t- foreground: Change the font color of the text.");
+            Console.WriteLine("\t- background: Change the console background color.");
+        }
     }
 }
 
