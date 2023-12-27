@@ -53,6 +53,7 @@ namespace Test_OS
             Console.Write(">$ ");
             String input = Console.ReadLine();
             var inputStream = input.Split(" ");
+            inputStream[0] = inputStream[0].ToLower();
             switch (inputStream[0])
             {
                 case "echo":
@@ -89,13 +90,21 @@ namespace Test_OS
                     }
                     CurrentDirectory = TestOS_CLI.FileSystem.changeDir(CurrentDirectory, inputStream[1], VFS);
                     break;
-                case "touch":
+                case "mkfile":
                     if (inputStream.Length < 2)
                     {
                         Console.WriteLine("Parameter missing.");
                         break;
                     }
                     TestOS_CLI.FileSystem.makeFile(CurrentDirectory, inputStream[1], VFS);
+                    break;
+                case "rmfile":
+                    if (inputStream.Length < 2)
+                    {
+                        Console.WriteLine("Parameter missing.");
+                        break;
+                    }
+                    TestOS_CLI.FileSystem.removeFile(CurrentDirectory, inputStream[1], VFS);
                     break;
                 case "shutdown":
                     TestOS_CLI.OS.shutdown();
@@ -127,6 +136,9 @@ namespace Test_OS
                     break;
                 case "datetime":
                     TestOS_CLI.OS.displayDateTime();
+                    break;
+                case "higherlower":
+                    TestOS_CLI.OS.playHigherLower();
                     break;
                 case "help":
                     TestOS_CLI.OS.displayHelp();
@@ -196,6 +208,7 @@ namespace TestOS_CLI
                 {
                     var direc = fs.GetDirectory(directory + input);
                     fs.DeleteDirectory(dir);
+                    
                     Console.WriteLine("Destroyed " + dir.mName + ".");
                     return;
                 }
@@ -241,6 +254,23 @@ namespace TestOS_CLI
             fs.CreateFile(dir);
             Console.WriteLine("Created " + fs.GetFile(dir).mName + ".");
         }
+
+        public static void removeFile(DirectoryEntry directory, string input, Sys.FileSystem.CosmosVFS fs)
+        {
+            var dirList = fs.GetDirectoryListing(directory);
+            foreach (var dir in dirList)
+            {
+                if (dir.mName == input)
+                {
+                    fs.DeleteFile(dir);
+
+                    Console.WriteLine("Destroyed " + dir.mName + ".");
+                    return;
+                }
+            }
+            Console.WriteLine("File does not exists.");
+            return;
+        }
     }
 
     public static class OS
@@ -278,8 +308,9 @@ namespace TestOS_CLI
         {
             for (int i = 1; i < stream.Length; i++)
             {
-                Console.Write(stream[i]);
+                Console.Write(stream[i] + " ");
             }
+            Console.WriteLine();
         }
 
         public static void shutdown()
@@ -467,7 +498,7 @@ namespace TestOS_CLI
                     Console.WriteLine("-\tMAGENTA: magenta");
                     Console.WriteLine("-\tDARK MAGENTA: d-magenta");
                     Console.WriteLine("-\tWHITE: white");
-                    break;
+                    return;
                 default:
                     Console.WriteLine($"{color} is not recognized by the system. For more info type \'background help\'");
                     break;
@@ -489,17 +520,81 @@ namespace TestOS_CLI
             Console.WriteLine("\t- shutdown: Shutdown the operating system.");
             Console.WriteLine("\t- reboot: Reboot the operating system.");
             Console.WriteLine("\t- sysinfo: Display the system info.");
-            Console.WriteLine("\t- datetime: Reboot the operating system.");
+            Console.WriteLine("\t- datetime: Display date and time.");
             Console.WriteLine("\t- cls: Clear the console screen.");
             Console.WriteLine("\tFile System:");
             Console.WriteLine("\t- dir: Check the contents of the current directory.");
             Console.WriteLine("\t- cd: Change the current directory.");
             Console.WriteLine("\t- mkdir: Create a new directory inside the current directory.");
-            Console.WriteLine("\t- rmdir: Delete a new directory inside the current directory.");
-            Console.WriteLine("\t- touch: Create a new file inside the current directory.");
+            Console.WriteLine("\t- rmdir: Delete a directory inside the current directory.");
+            Console.WriteLine("\t- mkfile: Create a new file inside the current directory.");
+            Console.WriteLine("\t- rmfile: Delete a file inside the current directory.");
             Console.WriteLine("\tCustomize:");
             Console.WriteLine("\t- foreground: Change the font color of the text.");
             Console.WriteLine("\t- background: Change the console background color.");
+            Console.WriteLine("\tExtra:");
+            Console.WriteLine("\t- higherlower: Start a game of higher or lower.");
+        }
+
+        public static void playHigherLower()
+        {
+            Console.Clear();
+            bool exitGame = false;
+
+            do
+            {
+                HigherLower();
+
+                Console.Write("Do you want to play again? (Y/n): ");
+                string userInput = Console.ReadLine().ToLower();
+
+                if (userInput != "Y" || userInput != "y")
+                {
+                    exitGame = true;
+                }
+
+            } while (!exitGame);
+
+            Console.WriteLine("Thanks for playing!");
+        }
+
+        static void HigherLower()
+        {
+            Random random = new Random();
+            int numberToGuess = random.Next(1, 101);
+            int numberOfGuesses = 5;
+            int userGuess;
+
+            Console.WriteLine("Welcome to the Higher or Lower game!");
+            Console.WriteLine("I've selected a number between 1 and 100. Try to guess it.");
+
+            for (int i = 1; i <= numberOfGuesses; i++)
+            {
+                Console.Write($"Guess #{i}: ");
+                if (int.TryParse(Console.ReadLine(), out userGuess))
+                {
+                    if (userGuess == numberToGuess)
+                    {
+                        Console.WriteLine("Congratulations! You guessed the correct number!");
+                        return;
+                    }
+                    else if (userGuess < numberToGuess)
+                    {
+                        Console.WriteLine("Too low. Try again.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Too high. Try again.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid number.");
+                    i--;
+                }
+            }
+
+            Console.WriteLine($"Sorry, you've run out of guesses. The correct number was {numberToGuess}.");
         }
     }
 }
